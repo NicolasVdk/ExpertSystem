@@ -10,7 +10,7 @@
 		read();
 
 	function error($error = null, $line = 0) {
-		echo ($error === null ? "Unkown error occured" : $error) . ($line > 0 ? " Line : " : "") . "." . PHP_EOL;
+		echo ($error === null ? "Unkown error occured" : $error) . ($line > 0 ? " Line : " . $line : "") . "." . PHP_EOL;
 		exit (1);
 	}
 

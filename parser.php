@@ -4,7 +4,9 @@
 	{
 		private static $_singleton;
 		public $line_n = 1;
-		public $stack = [];
+		public $condition = [];
+		public $affected = [];
+		public $variable = [];
 		public $expression_lists = [];
 
 		public function __construct() {
@@ -38,20 +40,29 @@
 		}
 
 		public function SendLine($line) {
-			if (preg_match("([^A-Z\|\^\!\(\)\+]+)", $match)) {
+			if (preg_match("([^A-Z\|\^\!\(\)\+]+)", $line, $match)) {
+				var_dump($match);
 				if (count($match) > 2)
 					error("Syntax error", $this->line_n);
 				/* Check if is a rules lines */
 				if (preg_match("/<=>|=>/", $line)) {
-					$side = preg_split( "/<=>|=>/", $line );
+					$side = preg_split( "/<=>|=>/", $line);
+					var_dump($line);
+					var_dump($side);
+					if ($line [1] === "=>") {
+
+					} else {
+
+					}
+					return ;
 				}
 				/* Check if is initial fact */
 				if (preg_match("/^\=/", $line)) {
-
+					return ;
 				}
 				/* Check if is a question */
 				if (preg_match("/^\?/", $line)) {
-					
+					return ;
 				}
 				error("Syntax error", $this->line_n);
 			}
