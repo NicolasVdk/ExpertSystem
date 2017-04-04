@@ -1,5 +1,7 @@
 <?php
 
+	include_once ("rpn.php");
+
 	class Parser
 	{
 		private static $_singleton;
@@ -10,7 +12,7 @@
 		public $expression_lists = [];
 
 		public function __construct() {
-			$expression_lists = ["+", "|", "!", "^", "<=>", "=>", "(", ")"];
+			$expression_lists = ["+", "|", "!", "^", "=>", "(", ")"];
 		}
 
 		public static function singleton () {
@@ -36,7 +38,7 @@
 					$stack[] = $real_line;
 				}
 			}
-			$line_n++;
+			$this->line_n++;
 		}
 
 		public function SendLine($line) {
@@ -44,12 +46,10 @@
 				if (count($match) > 2)
 					error("Syntax error", $this->line_n);
 				/* Check if is a rules lines */
-				if (preg_match("/<=>|=>/", $line)) {
-					$side = preg_split( "/(<=>|=>)/", $line);
+				if (preg_match("/=>/", $line)) {
+					$side = preg_split( "/=>/", $line);
 					if ($line [1] === "=>") {
-
-					} else {
-
+						$condition[] = new RPN($side[0]);
 					}
 					return ;
 				}
