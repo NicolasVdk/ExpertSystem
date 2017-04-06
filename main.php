@@ -4,15 +4,10 @@
 
 	if ($argc > 2)
 		error("Too much argument");	
-	else if ($argc == 2 && $argv[1] == "-d") {
-		define("DEBUG", true);
-	} else if ($argc == 2)
+	else if ($argc == 2)
 		files($argv[1]);
-	else if ($argc == 3 && $argv[1] == "-d") {
-		files($argv[2]);
-		define("DEBUG", true);
-	}
-	read();
+	else
+		read();
 
 	function error($error = null, $line = 0) {
 		echo ($error === null ? "Unkown error occured" : $error) . ($line > 0 ? " Line : " . $line : "") . "." . PHP_EOL;

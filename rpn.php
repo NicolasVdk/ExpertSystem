@@ -1,5 +1,5 @@
 <?php
-
+define("DEBUG", true);
 class RPN
 {
 	public $operator = ["(", ")", "^", "|", "+", "!"];

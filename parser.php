@@ -42,15 +42,13 @@
 		}
 
 		public function SendLine($line) {
-			if (preg_match("([^A-Z\|\^\!\(\)\+]+)", $line, $match)) {
+			if (preg_match("/([^A-Z\|\^\!\(\)\+]+)/", $line, $match)) {
 				if (count($match) > 2)
 					error("Syntax error", $this->line_n);
 				/* Check if is a rules lines */
 				if (preg_match("/=>/", $line)) {
 					$side = preg_split( "/=>/", $line);
-					if ($line [1] === "=>") {
-						$condition[] = new RPN($side[0]);
-					}
+					$condition[] = new RPN($side[0]);
 					return ;
 				}
 				/* Check if is initial fact */
