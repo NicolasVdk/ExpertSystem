@@ -48,7 +48,11 @@
 				/* Check if is a rules lines */
 				if (preg_match("/=>/", $line)) {
 					$side = preg_split( "/=>/", $line);
-					$condition[] = new RPN($side[0]);
+					preg_match_all("/[A-Z]/", $side[0], $match);
+					foreach ($match as $value) {
+						$condition[$value][] = new RPN($side[0]);
+						$affected[$value][] = $side[1];
+					}
 					return ;
 				}
 				/* Check if is initial fact */
