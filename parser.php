@@ -6,14 +6,10 @@
 	{
 		private static $_singleton;
 		public $line_n = 1;
+		public $rpndata = [];
 		public $condition = [];
 		public $affected = [];
 		public $variable = [];
-		public $expression_lists = [];
-
-		public function __construct() {
-			$expression_lists = ["+", "|", "!", "^", "=>", "(", ")"];
-		}
 
 		public static function singleton () {
 			if (self::$_singleton == null) {
@@ -48,9 +44,10 @@
 				/* Check if is a rules lines */
 				if (preg_match("/=>/", $line)) {
 					$side = preg_split( "/=>/", $line);
+					$rpndata[] = new RPN($side[0]);
 					preg_match_all("/[A-Z]/", $side[0], $match);
-					foreach ($match as $value) {
-						$condition[$value][] = new RPN($side[0]);
+					foreach ($match[0] as $value) {
+						$condition[$value][] = count($rpndata);
 						$affected[$value][] = $side[1];
 					}
 					return ;
