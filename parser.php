@@ -44,11 +44,11 @@
 				/* Check if is a rules lines */
 				if (preg_match("/=>/", $line)) {
 					$side = preg_split( "/=>/", $line);
-					$rpndata[] = new RPN($side[0]);
+					$this->rpndata[] = new RPN($side[0]);
 					preg_match_all("/[A-Z]/", $side[0], $match);
 					foreach ($match[0] as $value) {
-						$condition[$value][] = count($rpndata);
-						$affected[$value][] = $side[1];
+						$this->condition[$value][] = count($this->rpndata) - 1;
+						$this->affected[$value][] = $side[1];
 					}
 					return ;
 				}

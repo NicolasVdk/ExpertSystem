@@ -32,6 +32,7 @@
 		} else {
 			error("Files doesn't exist");
 		}
+		var_dump(Parser::singleton()->condition);
 	}
 
 	function read() {

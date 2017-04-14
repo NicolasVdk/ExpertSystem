@@ -4,10 +4,10 @@ define("DEBUG", false);
 
 class RPN
 {
-	public $operator = ["(", ")", "^", "|", "+", "!"];
-	public $operand = [];
+	private $operator = ["(", ")", "^", "|", "+", "!"];
+	private $operand = [];
 	public $sortie = [];
-	public $expression;
+	private $expression;
 
 	public function __construct($expression) {
 		$this->expression = str_split($expression);
