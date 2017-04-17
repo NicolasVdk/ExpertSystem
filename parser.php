@@ -9,7 +9,7 @@
 		public $rpndata = [];
 		public $condition = [];
 		public $affected = [];
-		public $variable = [];
+		public $variablestates = [];
 
 		public static function singleton () {
 			if (self::$_singleton == null) {
@@ -44,9 +44,12 @@
 				/* Check if is a rules lines */
 				if (preg_match("/=>/", $line)) {
 					$side = preg_split( "/=>/", $line);
-					$this->rpndata[] = new RPN($side[0]);
+					$tmp = new RPN($side[0]);
+					$this->rpndata[] = $tmp->sortie;
 					preg_match_all("/[A-Z]/", $side[0], $match);
 					foreach ($match[0] as $value) {
+						if (!array_key_exists($value, $this->variablestates))
+							$this->variablestates[$value] = false;
 						$this->condition[$value][] = count($this->rpndata) - 1;
 						$this->affected[$value][] = $side[1];
 					}
@@ -54,6 +57,10 @@
 				}
 				/* Check if is initial fact */
 				if (preg_match("/^\=/", $line)) {
+					preg_match_all("/[A-Z]/", $line, $match);
+					foreach ($match[0] as $value) {
+						$this->variablestates[$value] = true;
+					}
 					return ;
 				}
 				/* Check if is a question */

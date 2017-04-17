@@ -1,6 +1,7 @@
 <?php
 
 	include_once ("parser.php");
+	include_once ("resolution.php");
 
 	if ($argc > 2)
 		error("Too much argument");	
@@ -32,11 +33,17 @@
 		} else {
 			error("Files doesn't exist");
 		}
-		var_dump(Parser::singleton()->condition);
+		resolve();
 	}
 
 	function read() {
 		while($l = fgets(STDIN)){
 		    Parser::ParseLine($l);
 		}
+		resolve();
+	}
+
+	function resolve() {
+		$p = Parser::singleton();
+		new Resolution($p->condition, $p->affected, $p->rpndata, $p->variablestates);
 	}
