@@ -10,6 +10,7 @@
 		public $condition = [];
 		public $affected = [];
 		public $variablestates = [];
+		public $search = [];
 
 		public static function singleton () {
 			if (self::$_singleton == null) {
@@ -46,12 +47,12 @@
 					$side = preg_split( "/=>/", $line);
 					$tmp = new RPN($side[0]);
 					$this->rpndata[] = $tmp->sortie;
+					$this->affected[] = $side[1];
 					preg_match_all("/[A-Z]/", $side[0], $match);
 					foreach ($match[0] as $value) {
 						if (!array_key_exists($value, $this->variablestates))
 							$this->variablestates[$value] = false;
 						$this->condition[$value][] = count($this->rpndata) - 1;
-						$this->affected[$value][] = $side[1];
 					}
 					return ;
 				}
@@ -65,6 +66,10 @@
 				}
 				/* Check if is a question */
 				if (preg_match("/^\?/", $line)) {
+					preg_match_all("/[A-Z]/", $line, $match);
+					foreach ($match[0] as $value) {
+						$this->search[] = $value;
+					}
 					return ;
 				}
 				error("Syntax error", $this->line_n);

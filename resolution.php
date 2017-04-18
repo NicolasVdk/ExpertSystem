@@ -6,51 +6,86 @@ class Resolution
 	private $rpndata;
 	private $condition;
 	private $affected;
+	private $search;
 	private $variablestates;
 	private $listofpass;
-	private $nextlistofpass;
 
-	public function __construct($c, $a, $r, $v) {
+	public function __construct($c, $a, $r, $v, $s) {
 		$this->condition = $c;
 		$this->affected = $a;
 		$this->rpndata = $r;
 		$this->variablestates = $v;
+		$this->search = $s;
 		$this->listofpass = array_keys($this->rpndata);
-		$this->nextlistofpass = [];
 		$this->processList();
 	}
 
 	public function processList() {
-		foreach ($this->listofpass as $key => $value) {
-			echo "Process line : " . $key . PHP_EOL;
-			$this->processRpn($this->rpndata[$value]);
+		while (!empty($this->listofpass)) {
+			foreach ($this->listofpass as $key => $value) {
+				unset($this->listofpass[$key]);
+				echo "Process RPN : " . $value . PHP_EOL;
+				$this->applyResult($this->processRpn($this->rpndata[$value]), $value);
+			}
+		}
+		$this->show_result();
+	}
+
+	public function show_result() {
+		if (empty($this->search)) {
+			foreach ($this->variablestates as $key => $value) {
+				echo $key." = ".($value ? 'true':'false').PHP_EOL;
+			}
+		} else {
+			foreach ($this->search as $value) {
+				if (isset($this->variablestates[$value]))
+					echo $value." = ".($this->variablestates[$value] ? 'true':'false').PHP_EOL;
+				else
+					echo $value." = ".'false'.PHP_EOL;
+			}
+		}
+	}
+
+	public function applyResult($bool, $a_i) {
+		preg_match_all('/!?[A-Z]/', $this->affected[$a_i], $match);
+		foreach ($match[0] as $value) {
+			preg_match('/[A-Z]/', $value, $index);
+			if (preg_match('/!([A-Z])/', $value)) {
+				$this->applyChange($index[0], !$bool);
+			} else {
+				$this->applyChange($index[0], $bool);
+			}
+		}
+	}
+
+	public function applyChange($index, $bool) {
+		if (!isset($this->variablestates[$index]) || $this->variablestates[$index] !== $bool) {
+			$this->variablestates[$index] = $bool;
+			if (isset($this->condition[$index])) {
+				foreach ($this->condition[$index] as $value) {
+					if (!in_array($value, $this->listofpass, true))
+						$this->listofpass[] = $value;
+				}
+			}
 		}
 	}
 
 	public function processRpn($pile) {
-		var_dump($pile);
 		$pile = $this->ConvertOnRealOperation($pile);
 		$stack = [];
-		while (count($pile) > 1) {
-			foreach ($pile as $key => $value) {
-				echo "\r".implode(" ", $pile).'                  ';
-				unset($pile[$key]);
-				if (in_array($value, $this->operator)) {
-					array_unshift($pile, $this->defineOperatorFunction($value, $stack));
-					$stack = [];
-				} else {
-					$stack[] = $value;
-				}
+		foreach ($pile as $key => $value) {
+			if (in_array($value, $this->operator, true)) {
+				$stack = $this->defineOperatorFunction($value, $stack);
+			} else {
+				$stack[] = $value;
 			}
-			//echo "\r".count($pile);
 		}
-		echo PHP_EOL;
-		//var_dump($pile);
+		return $stack[0];
 	}
 
 	public function ConvertOnRealOperation($pile) {
 		for ($i = 0; $i < count($pile) ; $i++) {
-			if (!in_array($pile[$i], $this->operator)) {
+			if (!in_array($pile[$i], $this->operator, true)) {
 				$pile[$i] = $this->variablestates[$pile[$i]];
 			}
 		}
@@ -60,25 +95,30 @@ class Resolution
 	public function defineOperatorFunction($operator, $stack) {
 		switch ($operator) {
 			case '+':
-				return ($this->AllTrue($stack));
+				return [$this->AllTrue($stack)];
 				break;
 			
 			case '|':
-				return ($this->OneTrue($stack));
+				return [$this->OneTrue($stack)];
 				break;
 
 			case '^':
-				return ($this->OnlyOneTrue($stack));
+				return [$this->OnlyOneTrue($stack)];
 				break;
 
 			case '!':
-				return ($this->NotValue($stack));
+				return $this->NotValue($stack);
 				break;
+
+			default:
+				return [];
+				break;			
 		}
 	}
 
 	public function NotValue($stack) {
-		return !$stack[count($stack - 1)];
+		$stack[count($stack) - 1] = !$stack[count($stack) - 1];
+		return $stack;
 	}
 
 	public function AllTrue($stack) {

@@ -45,5 +45,5 @@
 
 	function resolve() {
 		$p = Parser::singleton();
-		new Resolution($p->condition, $p->affected, $p->rpndata, $p->variablestates);
+		new Resolution($p->condition, $p->affected, $p->rpndata, $p->variablestates, $p->search);
 	}
