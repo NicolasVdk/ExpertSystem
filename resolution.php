@@ -59,14 +59,18 @@ class Resolution
 	}
 
 	public function applyChange($index, $bool) {
-		if (!isset($this->variablestates[$index]) || $this->variablestates[$index] !== $bool) {
-			$this->variablestates[$index] = $bool;
-			if (isset($this->condition[$index])) {
+		if (!isset($this->variablestates[$index])) {
+			$this->variablestates[$index] = false;
+		}
+		if ($this->variablestates[$index] !== $bool && !$this->variablestates[$index]) {
+			echo $index . " move from ".($this->variablestates[$index] ? 'true':'false')." on " . ($bool ? 'true':'false'). PHP_EOL;
+			if (isset($this->condition[$index]) && $this->variablestates[$index] !== $bool) {
 				foreach ($this->condition[$index] as $value) {
 					if (!in_array($value, $this->listofpass, true))
 						$this->listofpass[] = $value;
 				}
 			}
+			$this->variablestates[$index] = $bool;
 		}
 	}
 
@@ -75,7 +79,10 @@ class Resolution
 		$stack = [];
 		foreach ($pile as $key => $value) {
 			if (in_array($value, $this->operator, true)) {
-				$stack = $this->defineOperatorFunction($value, $stack);
+				$tmp = array_slice($stack, 0, count($stack) - 2);
+				$stack = $this->defineOperatorFunction($value, array_slice($stack, -2, 2));
+				$stack = array_merge($tmp, $stack);
+
 			} else {
 				$stack[] = $value;
 			}
@@ -117,11 +124,17 @@ class Resolution
 	}
 
 	public function NotValue($stack) {
+		if (count($stack) < 1) {
+			error('Too much operator Maybe ?');
+		}
 		$stack[count($stack) - 1] = !$stack[count($stack) - 1];
 		return $stack;
 	}
 
 	public function AllTrue($stack) {
+		if (count($stack) < 2) {
+			error('Too much operator Maybe ?');
+		}
 		foreach ($stack as $key => $value) {
 			if ($value === false)
 				return false;
@@ -130,6 +143,9 @@ class Resolution
 	}
 
 	public function OneTrue($stack) {
+		if (count($stack) < 2) {
+			error('Too much operator Maybe ?');
+		}
 		foreach ($stack as $value) {
 			if ($value === true)
 				return true;
@@ -138,6 +154,9 @@ class Resolution
 	}
 
 	public function OnlyOneTrue($stack) {
+		if (count($stack) < 2) {
+			error('Too much operator Maybe ?');
+		}
 		$states = false;
 		foreach ($stack as $value) {
 			if ($value === true) {

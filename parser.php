@@ -45,8 +45,9 @@
 				/* Check if is a rules lines */
 				if (preg_match("/=>/", $line)) {
 					$side = preg_split( "/=>/", $line);
-					$tmp = new RPN($side[0]);
+					$tmp = new RPN($side[0], $this->line_n);
 					$this->rpndata[] = $tmp->sortie;
+					new RPN($side[1], $this->line_n);
 					$this->affected[] = $side[1];
 					preg_match_all("/[A-Z]/", $side[0], $match);
 					foreach ($match[0] as $value) {
