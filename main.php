@@ -39,30 +39,40 @@
 		} else {
 			error("Files doesn't exist");
 		}
-		resolve();
+		resolve(true);
 	}
 
 	function read() {
+		$restart = false;
 		while($l = fgets(STDIN)){
-		    Parser::ParseLine($l);
+		    if ($l !== PHP_EOL)
+		    	Parser::ParseLine($l);
+		    else {
+		    	$restart = true;
+		    	break;
+		    }
 		}
-		resolve();
+		resolve($restart);
 	}
 
 	function replay() {
 		echo "Change a fact ?".PHP_EOL;
+		$restart = false;
 		while($l = fgets(STDIN)){
 			if ($l !== PHP_EOL)
 		    	Parser::ParseLine($l);
-		    else
+		    else {
+		    	$restart = true;
 		    	break;
+		    }
 		}
-		resolve();
+		resolve($restart);
 	}
 
-	function resolve() {
+	function resolve($restart) {
 		global $verbose;
 		$p = Parser::singleton();
 		new Resolution($p->condition, $p->affected, $p->rpndata, $p->variablestates, $p->search, $verbose);
-		replay();
+		if ($restart)
+			replay();
 	}
