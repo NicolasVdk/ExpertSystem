@@ -3,9 +3,15 @@
 	include_once ("parser.php");
 	include_once ("resolution.php");
 
-	if ($argc > 2)
-		error("Too much argument");	
-	else if ($argc == 2)
+	global $verbose;
+	$verbose = false;
+
+	if ($argc > 2 && $argv[1] !== '-v')
+		error("Too much argument");
+	else if ($argc == 3 && $argv[1] === '-v') {
+		$verbose = true;
+		files($argv[2]);
+	} else if ($argc == 2 && $argv[1] !== '-v')
 		files($argv[1]);
 	else
 		read();
@@ -43,7 +49,20 @@
 		resolve();
 	}
 
+	function replay() {
+		echo "Change a fact ?".PHP_EOL;
+		while($l = fgets(STDIN)){
+			if ($l !== PHP_EOL)
+		    	Parser::ParseLine($l);
+		    else
+		    	break;
+		}
+		resolve();
+	}
+
 	function resolve() {
+		global $verbose;
 		$p = Parser::singleton();
-		new Resolution($p->condition, $p->affected, $p->rpndata, $p->variablestates, $p->search);
+		new Resolution($p->condition, $p->affected, $p->rpndata, $p->variablestates, $p->search, $verbose);
+		replay();
 	}

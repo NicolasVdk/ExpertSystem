@@ -60,6 +60,7 @@
 				/* Check if is initial fact */
 				if (preg_match("/^\=/", $line)) {
 					preg_match_all("/[A-Z]/", $line, $match);
+					$this->variablestates = [];
 					foreach ($match[0] as $value) {
 						$this->variablestates[$value] = true;
 					}
@@ -68,6 +69,7 @@
 				/* Check if is a question */
 				if (preg_match("/^\?/", $line)) {
 					preg_match_all("/[A-Z]/", $line, $match);
+					$this->search = [];
 					foreach ($match[0] as $value) {
 						$this->search[] = $value;
 					}

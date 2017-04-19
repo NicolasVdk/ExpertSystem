@@ -9,13 +9,15 @@ class Resolution
 	private $search;
 	private $variablestates;
 	private $listofpass;
+	private $verbose;
 
-	public function __construct($c, $a, $r, $v, $s) {
+	public function __construct($c, $a, $r, $v, $s, $verbose) {
 		$this->condition = $c;
 		$this->affected = $a;
 		$this->rpndata = $r;
 		$this->variablestates = $v;
 		$this->search = $s;
+		$this->verbose = $verbose;
 		$this->listofpass = array_keys($this->rpndata);
 		$this->processList();
 	}
@@ -24,7 +26,8 @@ class Resolution
 		while (!empty($this->listofpass)) {
 			foreach ($this->listofpass as $key => $value) {
 				unset($this->listofpass[$key]);
-				echo "Process RPN : " . $value . PHP_EOL;
+				if ($this->verbose)
+					echo "Process RPN : " . implode(' ', $this->rpndata[$value]) . PHP_EOL;
 				$this->applyResult($this->processRpn($this->rpndata[$value]), $value);
 			}
 		}
@@ -38,7 +41,7 @@ class Resolution
 			}
 		} else {
 			foreach ($this->search as $value) {
-				if (isset($this->variablestates[$value]))
+				if (isset($this->variablestates[$value])) 
 					echo $value." = ".($this->variablestates[$value] ? 'true':'false').PHP_EOL;
 				else
 					echo $value." = ".'false'.PHP_EOL;
@@ -63,7 +66,8 @@ class Resolution
 			$this->variablestates[$index] = false;
 		}
 		if ($this->variablestates[$index] !== $bool && !$this->variablestates[$index]) {
-			echo $index . " move from ".($this->variablestates[$index] ? 'true':'false')." on " . ($bool ? 'true':'false'). PHP_EOL;
+			if ($this->verbose)
+				echo $index . " move from ".($this->variablestates[$index] ? 'true':'false')." on " . ($bool ? 'true':'false'). PHP_EOL;
 			if (isset($this->condition[$index]) && $this->variablestates[$index] !== $bool) {
 				foreach ($this->condition[$index] as $value) {
 					if (!in_array($value, $this->listofpass, true))
@@ -93,6 +97,9 @@ class Resolution
 	public function ConvertOnRealOperation($pile) {
 		for ($i = 0; $i < count($pile) ; $i++) {
 			if (!in_array($pile[$i], $this->operator, true)) {
+				if (!isset($this->variablestates[$pile[$i]])) {
+					$this->variablestates[$pile[$i]] = false;
+				}
 				$pile[$i] = $this->variablestates[$pile[$i]];
 			}
 		}
