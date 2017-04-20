@@ -59,9 +59,11 @@
 		echo "Change a fact ?".PHP_EOL;
 		$restart = false;
 		while($l = fgets(STDIN)){
-			if ($l !== PHP_EOL)
+			if ($l !== PHP_EOL && $l !== 'exit'.PHP_EOL)
 		    	Parser::ParseLine($l);
-		    else {
+		    else if ($l === 'exit'.PHP_EOL) {
+		    	exit();
+		    } else {
 		    	$restart = true;
 		    	break;
 		    }
